@@ -2,9 +2,7 @@
   <div class="twoot-item" @click="favoriteTwoot(twoot.id)">
     <div class="user-profile_twoot">
       <div class="twoot-item_user">@{{ username }}</div>
-      <div class="twoot-item_content">
-        {{ twoot.content }}
-      </div>
+      <div class="twoot-item_content">{{ twoot.content }}</div>
     </div>
   </div>
 </template>
@@ -44,7 +42,7 @@ export default {
   &:hover {
     transform: scale(1.1, 1.1);
   }
-  
+
   .twoot-item_user {
     font-weight: bold;
   }
