@@ -7,15 +7,15 @@
     <label for="newTwoot">
       <strong>New twoot </strong>({{ newTwootCharacterCount }}/180)
     </label>
-    <textarea id="newTwoot" rows="4" v-model="newTwootContent" />
+    <textarea id="newTwoot" rows="4" v-model="state.newTwootContent" />
 
     <div class="create-twoot-panel__submit">
       <div class="create-twoot-type">
         <label for="newTwootType"><strong>Type:</strong></label>
-        <select id="newTwootType" v-model="selectedTwootType">
+        <select id="newTwootType" v-model="state.selectedTwootType">
           <option
             :value="option.value"
-            v-for="(option, index) in twootTypes"
+            v-for="(option, index) in state.twootTypes"
             :key="index"
           >
             {{ option.name }}
@@ -27,31 +27,30 @@
   </form>
 </template>
 <script>
+import { reactive, computed } from "vue";
+
 export default {
   name: "CreateTwootPanel",
-  data() {
-    return {
+  setup(props, context) {
+    const state = reactive({
       newTwootContent: "",
       selectedTwootType: "instant",
       twootTypes: [
         { value: "draft", name: "Draft" },
         { value: "instant", name: "Instant twoot" },
       ],
-    };
-  },
-  computed: {
-    newTwootCharacterCount() {
-      return this.newTwootContent.length;
-    },
-  },
-  methods: {
-    createNewTwoot() {
-      console.log("this.selectedTwootType", this.selectedTwootType);
-      if (this.newTwootContent && this.selectedTwootType !== "draft" && this.newTwootCharacterCount <= 180) {
-        this.$emit("add-twoot", this.newTwootContent);
-        this.newTwootContent = "";
+    });
+
+    const newTwootCharacterCount = computed(() => state.newTwootContent.length);
+
+    function createNewTwoot() {
+      if (state.newTwootContent &&  state.selectedTwootType !== "draft" &&  newTwootCharacterCount.value <= 180) {
+        context.emit("add-twoot", state.newTwootContent);
+        state.newTwootContent = "";
       }
-    },
+    }
+
+    return { state, newTwootCharacterCount, createNewTwoot };
   },
 };
 </script>
@@ -69,8 +68,8 @@ export default {
   .create-twoot-panel__submit {
     display: flex;
     justify-content: space-between;
-  
-  .create-twoot-type {
+
+    .create-twoot-type {
       padding: 10px 0;
     }
     button {
@@ -83,26 +82,26 @@ export default {
       font-weight: bold;
     }
   }
-    #newTwoot {
-        border-color: lightgray;
-        border-radius: 5px;
-        font-family: Avenir, Helvetica, Arial, sans-serif;
-        &:focus {
-          outline: none !important;
-          border-color: gray;
-          border-radius: 0;
-        }
-      }
-      #newTwootType {
-        margin-top: 8px;
-        border-color: lightgray;
-        border-radius: 5px;
-        font-family: Avenir, Helvetica, Arial, sans-serif;
-        &:focus {
-          outline: none !important;
-          border-color: gray;
-        }
-      }
+  #newTwoot {
+    border-color: lightgray;
+    border-radius: 5px;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    &:focus {
+      outline: none !important;
+      border-color: gray;
+      border-radius: 0;
+    }
+  }
+  #newTwootType {
+    margin-top: 8px;
+    border-color: lightgray;
+    border-radius: 5px;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    &:focus {
+      outline: none !important;
+      border-color: gray;
+    }
+  }
   &.--exceeded {
     color: red;
     border-color: red;

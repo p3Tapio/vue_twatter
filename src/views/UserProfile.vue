@@ -1,60 +1,55 @@
 <template>
-  <div class="user-profile">
+  <div class="user-profile" v-if="state.user">
     <div class="user-profile_sidebar">
       <div class="user-profile_user-panel">
-        <h1 class="user-profile_username">@{{ user.username }}</h1>
-        <div class="user-profile_admin-bagde" v-if="user.isAdmin">Admin</div>
+        <h1 class="user-profile_username">@{{ state.user.username }}</h1>
+        <div class="user-profile_admin-bagde" v-if="state.user.isAdmin">
+          Admin
+        </div>
         <div class="user-profile_admin-bagde" v-else>User</div>
         <div id="user-profile_follower-count">
-          <strong>Followers: </strong>{{ followers }}
+          <strong>Followers: </strong>{{ state.followers }}
         </div>
       </div>
       <CreateTwootPanel @add-twoot="addTwoot" />
     </div>
     <div class="user-profile_twoots-wrapper">
       <TwootItem
-        v-for="twoot in user.twoots"
+        v-for="twoot in state.user.twoots"
         :key="twoot.id"
-        :username="user.username"
+        :username="state.user.username"
         :twoot="twoot"
-        @favorite="toggleFavorite"
       />
     </div>
   </div>
+  <div class="nullUser" v-else><h1>404</h1></div>
 </template>
 
 <script>
-import TwootItem from "./TwootItem";
-import CreateTwootPanel from "./CreateTwootPanel";
+import { reactive, computed } from "vue";
+import { useRoute } from "vue-router";
+import { users } from "../assets/users";
+import TwootItem from "../components/TwootItem";
+import CreateTwootPanel from "../components/CreateTwootPanel";
 
 export default {
   name: "UserProfile",
   components: { TwootItem, CreateTwootPanel },
-  data() {
-    return {
+  setup() {
+    const route = useRoute();
+    const userId = computed(() => route.params.userId);
+    const state = reactive({
       followers: 0,
-      user: {
-        id: 1,
-        username: "_JokuNimi",
-        firstname: "Joku",
-        lastname: "Nimi",
-        email: "joku@nimi.com",
-        isAdmin: true,
-        twoots: [
-          { id: 1, content: "Twotter is yeah" },
-          { id: 2, content: "Zumba lessons today" },
-          { id: 3, content: "Subscribe to my wonderful twotter" },
-        ],
-      },
-    };
-  },
-  methods: {
-    addTwoot(twoot) {
-      this.user.twoots.unshift({
-        id: this.user.twoots.length + 1,
+      user: users[userId.value] || null,
+    });
+
+    function addTwoot(twoot) {
+      state.user.twoots.unshift({
+        id: state.user.twoots.length + 1,
         content: twoot,
       });
-    },
+    }
+    return { state, addTwoot, userId };
   },
 };
 </script>
@@ -89,6 +84,10 @@ export default {
       padding: 5px 10px;
     }
   }
+}
+.nullUser {
+    text-align: center;
+    margin-top: 100px;
 }
 .user-profile_twoots-wrapper {
   width: 75%;
